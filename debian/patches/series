@@ -1,9 +1,8 @@
-bugfix/fix_spellings-manpage.patch
+bugfix/fix-spellings-manpage.patch
 bugfix/add-missing-includes.diff -p1
 bugfix/build-manpage.diff -p1
 bugfix/fine-grain-x-deps.diff -p1
 bugfix/hppa-build.diff -p1
-bugfix/typos.diff -p1
 debian/enable-xpm.diff -p1
 debian/html-support-gone.diff -p1
 debian/unqualify-xmotd-in-manpage.diff -p1

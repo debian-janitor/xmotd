@@ -7,8 +7,9 @@ xmotd (1.17.3b-9) unstable; urgency=medium
     - Update e-mail address for Hugo Lefeuvre.
   * debian/control:
     - Bump Standards-Version to 3.9.8.
-  * Add debian/patches/bugfix/fix_spellings-manpage.patch:
-    - Fix spelling in manpage. 
+  * debian/patches/*:
+    - Fix spellings in manpage.
+    - Various patches by Marcin Owsiany fixing bugs in xmotd.
   * Remove debian/menu (useless because of debian/xmotd.desktop).
   * debian/xmotd.desktop:
     - Add Keywords field.

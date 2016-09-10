@@ -1,0 +1,23 @@
+Subject: Fix spellings in manpage.
+Author: Hugo Lefeuvre <hle@debian.org>
+Last-Update: 2016-09-10
+--- a/xmotd.8	2016-09-10 21:51:27.801896455 +0200
++++ b/xmotd.8	2016-09-10 21:51:50.225854413 +0200
+@@ -77,7 +77,7 @@
+ file. At sites where xdm is not used, \fBxmotd\fP may be run from the
+ user's
+ .I ~/.xinitrc
+-where a (possibly) malicious user may intentionally or accidently
++where a (possibly) malicious user may intentionally or accidentally
+ remove the \fBxmotd\fP invocation from the file.
+ 
+ .LP
+@@ -102,7 +102,7 @@
+ .B xmotd
+ pops-down only when the \fI"Dismiss"\fP button is clicked; the rest
+ of the login-procedure then continues. This interactive behaviour can
+-be overriden so 
++be overridden so 
+ .B xmotd
+ will pop-down without user intervention, after a specified timeout
+ period.
