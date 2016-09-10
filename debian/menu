@@ -1,6 +1,0 @@
-?package(xmotd): needs="x11" \
- section="Applications/Viewers" \
- title="Xmotd" \
- command="xmotd /etc/motd" \
- icon="/usr/share/pixmaps/xmotd.xpm" \
- longtitle="Message of the day viewer for X"

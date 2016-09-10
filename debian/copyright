@@ -1,34 +1,39 @@
-This package was debianized by Richard Kaszeta <kaszeta@me.umn.edu> on
-Wed, 23 Oct 1996 13:03:02 -0500.
-It was adopted by Hugo Lefeuvre <hugo6390@orange.fr> on 
-Sat, 14 Jun 2014 15:41:15 +0200.
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: xmotd
+Source: http://www.ee.ryerson.ca/~elf/xmotd/ 
 
-The original sources can be found at:
-	http://www.ee.ryerson.ca/~elf/xmotd/
+Files: *
+Copyright: 1994-2003 Luis Fernandes <elf@ee.ryerson.ca>
+License: GPL-2+
 
-xmotd Copyright 1993 (as xbanner), 1994-97, 1999, 2001, 2003 Luis Fernandes
+Files: debian/*
+Copyright: 1996 Richard Kaszeta <kaszeta@me.umn.edu>
+           2001-2014 Marcin Owsiany <porridge@debian.org>
+           2014-2016 Hugo Lefeuvre <hle@debian.org>
+License: GPL-2+
 
-Permission to use, copy, hack, and distribute this software and its
-documentation for any purpose and without fee is hereby granted,
-provided that the above copyright notice appear in all copies and
-that both that copyright notice and this permission notice appear in
-supporting documentation.
-
-xmotd IS PRESENTED AS IS, WITHOUT ANY IMPLIED OR WRITTEN WARRANTY.
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
-
-On Debian systems, the full text of the GNU General Public License can be
-found in /usr/share/common-licenses/GPL.
+License: GPL-2+
+ Permission to use, copy, hack, and distribute this software and its
+ documentation for any purpose and without fee is hereby granted,
+ provided that the above copyright notice appear in all copies and
+ that both that copyright notice and this permission notice appear in
+ supporting documentation.
+ .
+ xmotd IS PRESENTED AS IS, WITHOUT ANY IMPLIED OR WRITTEN WARRANTY.
+ .
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
+ .
+ On Debian systems, the full text of the GNU General Public License can be
+ found in /usr/share/common-licenses/GPL-2.

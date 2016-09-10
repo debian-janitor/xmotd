@@ -1,0 +1,31 @@
+From: Marcin Owsiany <marcin@owsiany.pl>
+Subject: [PATCH] bugfix/build-manpage
+
+Add a target to create xmotd.man from xmotd.8
+The build process seems to be broken and this is the easiest workaround I could
+find.
+
+Signed-off-by: Marcin Owsiany <marcin@owsiany.pl>
+
+---
+ Imakefile | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/Imakefile b/Imakefile
+index 539905c..8256a76 100644
+--- a/Imakefile
++++ b/Imakefile
+@@ -133,6 +133,11 @@ man: xmotd.8
+ 	rm -f xmotd-man.ps;
+ 	troff -mansun xmotd.8 |dpost >xmotd-mansun.ps
+ 
++xmotd.man: xmotd.8
++	cp $< $@
++clean::
++	rm -f xmotd.man
++
+ XCOMM This target builds the java distribution, Wed Sep 26 19:24:51 2001
+ java-distrib:
+ 	tar zcvf jmotd-0.55.tar.gz jmotd/README jmotd/logo.gif jmotd/xmotd* jmotd/HistoryItem*
+-- 
+tg: (d3dafc5..) bugfix/build-manpage (depends on: upstream)

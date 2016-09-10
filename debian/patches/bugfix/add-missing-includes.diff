@@ -1,0 +1,100 @@
+From: Marcin Owsiany <marcin@owsiany.pl>
+Subject: [PATCH] bugfix/add-missing-includes
+
+Add mising includes.
+Their lack caused build failures on architectures where sizeof(int) != sizeof(void*).
+
+Signed-off-by: Marcin Owsiany <marcin@owsiany.pl>
+
+---
+ browser.c  | 2 ++
+ logo.c     | 1 +
+ main.c     | 2 ++
+ textmode.c | 3 +++
+ usage.c    | 1 +
+ xmotd.c    | 1 +
+ 6 files changed, 10 insertions(+)
+
+diff --git a/browser.c b/browser.c
+index 170e7eb..379b4ea 100644
+--- a/browser.c
++++ b/browser.c
+@@ -32,6 +32,8 @@
+ 
+ #ifdef HAVE_HTML
+ 
++#include <sys/types.h>
++#include <unistd.h>
+ #include <stdio.h>
+ #include "maindefs.h"
+ #include "libhtmlw/HTML.h"
+diff --git a/logo.c b/logo.c
+index 6c39d32..c08198c 100644
+--- a/logo.c
++++ b/logo.c
+@@ -29,6 +29,7 @@
+ 
+ /* $Id: logo.c,v 1.2 1997/07/18 01:23:55 elf Exp $ */
+ #include <stdio.h>
++#include <stdlib.h>
+ #include <X11/Intrinsic.h>
+ #include <X11/StringDefs.h>
+ 
+diff --git a/main.c b/main.c
+index 4879c5c..d4265e7 100644
+--- a/main.c
++++ b/main.c
+@@ -44,8 +44,10 @@
+  */
+ 
+ #include <stdio.h>
++#include <stdlib.h>
+ #include <malloc.h>
+ #include <time.h>
++#include <unistd.h>
+ 
+ #include <sys/types.h>
+ #include <sys/stat.h>
+diff --git a/textmode.c b/textmode.c
+index 013a35f..ef395be 100644
+--- a/textmode.c
++++ b/textmode.c
+@@ -30,9 +30,12 @@
+  */
+ 
+ #include <stdio.h>
++#include <stdlib.h>
+ #include <string.h>
+ #include <malloc.h>
+ #include <sys/stat.h>
++#include <sys/types.h>
++#include <unistd.h>
+ #include <memory.h>
+ #include <fcntl.h>
+ 
+diff --git a/usage.c b/usage.c
+index 5b0aeec..6039f02 100644
+--- a/usage.c
++++ b/usage.c
+@@ -27,6 +27,7 @@
+  */
+ 
+ #include <stdio.h>
++#include <stdlib.h>
+ 
+ #include "maindefs.h"
+ #include "patchlevel.h"
+diff --git a/xmotd.c b/xmotd.c
+index 875b947..fc0c597 100644
+--- a/xmotd.c
++++ b/xmotd.c
+@@ -28,6 +28,7 @@
+  * 
+  */
+ #include <stdio.h>
++#include <stdlib.h>
+ #include <malloc.h>
+ #include <time.h>
+ #include <memory.h>
+-- 
+tg: (d3dafc5..) bugfix/add-missing-includes (depends on: upstream)

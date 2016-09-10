@@ -1,8 +1,8 @@
 Source: xmotd
 Section: x11
 Priority: optional
-Maintainer: Hugo Lefeuvre <hugo6390@orange.fr>
-Standards-Version: 3.9.5
+Maintainer: Hugo Lefeuvre <hle@debian.org>
+Standards-Version: 3.9.8
 Build-Depends: debhelper (>= 9), 
                dh-autoreconf, 
                libxaw7-dev, 
@@ -11,8 +11,8 @@ Build-Depends: debhelper (>= 9),
                libxt-dev, 
                xutils-dev
 Homepage: http://www.ee.ryerson.ca/~elf/xmotd/
-Vcs-Git: git://github.com/hugo6390/xmotd.git
-Vcs-Browser: https://github.com/hugo6390/xmotd
+Vcs-Git: https://github.com/hlef/xmotd
+Vcs-Browser: https://github.com/hlef/xmotd
 
 Package: xmotd
 Architecture: any
