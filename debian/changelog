@@ -4,7 +4,7 @@ xmotd (1.17.3b-10) unstable; urgency=medium
     - Fix most compile time warnings and avoid crash with hardening
       flags (acknowledgments to Christoph Pleger for the patch)
       (Closes: #889740).
-  * Bum debian/compat from 9 to 11.
+  * Bump debian/compat from 9 to 11.
   * debian/control:
     - Depend on debhelper >= 11 instead of >= 9. 
   * debian/control:
