@@ -1,0 +1,561 @@
+Remove compiler and linker warnings
+Index: xmotd-1.17.3b/atom.c
+===================================================================
+--- xmotd-1.17.3b.orig/atom.c	2018-02-13 10:44:27.104309051 +0100
++++ xmotd-1.17.3b/atom.c	2018-02-13 10:44:27.096309028 +0100
+@@ -29,6 +29,7 @@
+  */
+ #include <stdio.h>
+ 
++#include <unistd.h>
+ #include <sys/types.h>
+ #include <errno.h>
+ #include <pwd.h>
+Index: xmotd-1.17.3b/main.c
+===================================================================
+--- xmotd-1.17.3b.orig/main.c	2018-02-13 10:44:27.104309051 +0100
++++ xmotd-1.17.3b/main.c	2018-02-13 10:44:27.096309028 +0100
+@@ -205,9 +205,10 @@
+         <Expose>: end-of-file()";
+ 
+ char *
+-getTimeStampName()
++getTimeStampName(void)
+ {
+   static char buf[256];
++  int result;
+   
+   sprintf(buf, "%s/%s", getenv("HOME"), app_res.stampfile);
+ 
+@@ -215,10 +216,12 @@
+ 	{
+ 	  char domainame[256];
+ 
+-	  getdomainname(domainame, 256);
++	  result = getdomainname(domainame, 256);
+   
+ 	  strcat(buf, "."); 
+-	  strcat(buf, domainame);
++
++	  if (result == 0)
++	    strcat(buf, domainame);
+ 	}
+ 
+   return(buf);
+@@ -394,7 +397,7 @@
+ 
+ 		  if ((dir = opendir(argv[i]))) 
+ 			{
+-			  while (dp = readdir(dir)) 
++			  while ((dp = readdir(dir)))
+ 				{
+ 				  if (dp->d_ino == 0)
+ 					continue;
+@@ -481,139 +484,21 @@
+ 	  /* next check if any messages need to be displayed, if there
+          aren't any, go back to sleep; otherwise return to display
+          messages*/
+-	  if(numsg=numFilesToDisplay(gargc, gargv)) return(numsg);
+-	}
+-
+-}
+-
+-
+-main(argc, argv)
+-int argc;
+-char **argv;
+-{
+-  extern Boolean atomExists(String);
+-  Display *display;
+-  register int i, start=0;
+-  int numsg;
+-
+-  
+-  if ((argc > 1) && !(strcmp(argv[1],"-help")))
+-	{
+-	  printUsage(argv[0]);		/* and exit */
+-	}
+-
+-  /* Test to see whether we are connected to an X display. If we
+-	 aren't, we proceed in text-only mode: bare-bones functionality;
+-	 output to stdout.  Why bare-bones, I hear you asking? Well, X
+-	 does all the command-line options parsing for me and I don't feel
+-	 like duplicating all that code. So there.*/
+-
+-  if((display=XOpenDisplay((char *)NULL))==NULL) 
+-	{
+-
+-	  if(argc<2)
+-		{
+-		  fprintf(stderr, "xmotd: ERROR, missing file.\n");
+-		  printUsage(argv[0]);	/* and exit */
+-		}
+-	  else
+-		{
+-		  extern void runInTextMode();
+-		  runInTextMode(argc, argv); /* ...and exit... */
+-		} 
+-
+-	  fprintf(stderr,"Never gets here!\n");
+-	  exit(0);				/* just in case */
+-	  
+-	} 
+-  else 
+-	{
+-	  XCloseDisplay(display);
+-	}
+-  
+-  /* we have to init the toolkit *before* we check the command-line so
+-     we can use X's parsing routines, since -geom options, etc. may be
+-     specified, in which case, the motd-filename is *not* the 2nd
+-     argument*/
+-  topLevel = XtVaAppInitialize(&app_con, "XMotd", options, 
+-							   XtNumber(options),
+-							   &argc, argv, fallback_resources, 
+-							   NULL);
+-
+-  XtGetApplicationResources(topLevel, (caddr_t) &app_res,
+-							resources, XtNumber(resources),
+-							(ArgList) NULL, (Cardinal) 0);
+-
+-  if(argc<2)
+-	{
+-	  fprintf(stderr,"xmotd: ERROR, missing file\n");
+-	  printUsage(argv[0]);	/* and exit */
+-	}
+-  
+-  if(app_res.paranoid && !app_res.warnfile)
+-	{
+-	  fprintf(stderr,"xmotd: ERROR, specified \"-paranoid\" without \"-warnfile\"\n");
+-	  printUsage(argv[0]);	/* and exit */
+-	}
+-
+-  strcpy(timeStamp, getTimeStampName());
+-
+-  gargc=argc;
+-  gargv=argv;
+-  
+-  /* first figure out how many of the files supplied on the
+-     command-line we will be actually displaying; i.e. we only show
+-     the new ones (unless -always has been specified, in which case we
+-     show all of them)*/
+-  numsg=numFilesToDisplay(argc, argv);
+-
+-  if(!app_res.periodic && !numsg)
+-	{
+-	  /* if none of the messages need to be displayed and -wakeup not
+-	  specified */
+-
+-	  XtDestroyApplicationContext(app_con);		
+-	  exit(0);
+-	}  
+-
+-  if(app_res.periodic)			/*-wakeup or -timeout specified*/
+-	{
+-
+-	  /*ensure no other copies of xmotd are running*/
+-	  if(atomExists(app_res.atomname)){
+-		XtDestroyApplicationContext(app_con);		
+-		exit(0);
+-	  }
+-
+-	  if(fork()) exit(0);		/*we have to daemonize ourselves*/
+-	  alreadyForked=1;			/* make a note of it */
+-
+-	  if(!numsg)
+-		{
+-		  /* if no messages to be displayed, we sleep */
+-		  numsg=runSilentRunDeep(getAlarmTime(app_res.periodic));
+-		}
+-
++	  if((numsg=numFilesToDisplay(gargc, gargv))) return(numsg);
+ 	}
+ 
+-  createWidgets(numsg);
+-  nextMessage((Widget)NULL, (caddr_t)NULL, (caddr_t)NULL);  
+-
+-  XtAddEventHandler(topLevel, (EventMask)0, True,
+-					(XtEventHandler)_XEditResCheckMessages, 0);
+-
+-  XtRealizeWidget(topLevel);  
+-  XtAppMainLoop(app_con);
+ }
+ 
+ 
+-createWidgets(int anymsg)
++void createWidgets(int anymsg)
+ {
+-  Widget form, paned, logo, mlabel, hline;
++  Widget form, logo, mlabel, hline;
+   XtTranslations shift1TransTable, tailTransTable;
+   Pixel fg, bg;
++  #ifdef MOTIF
+   Arg args[8];
+   int n;
++  #endif
+   
+ #ifdef MOTIF
+   XmString xmstr;
+@@ -805,3 +690,124 @@
+   
+ }/* createWidgets*/
+ 
++
++int
++main(argc, argv)
++int argc;
++char **argv;
++{
++  extern Boolean atomExists(String);
++  Display *display;
++  int numsg;
++
++  
++  if ((argc > 1) && !(strcmp(argv[1],"-help")))
++	{
++	  printUsage(argv[0]);		/* and exit */
++	}
++
++  /* Test to see whether we are connected to an X display. If we
++	 aren't, we proceed in text-only mode: bare-bones functionality;
++	 output to stdout.  Why bare-bones, I hear you asking? Well, X
++	 does all the command-line options parsing for me and I don't feel
++	 like duplicating all that code. So there.*/
++
++  if((display=XOpenDisplay((char *)NULL))==NULL) 
++	{
++
++	  if(argc<2)
++		{
++		  fprintf(stderr, "xmotd: ERROR, missing file.\n");
++		  printUsage(argv[0]);	/* and exit */
++		}
++	  else
++		{
++		  extern void runInTextMode();
++		  runInTextMode(argc, argv); /* ...and exit... */
++		} 
++
++	  fprintf(stderr,"Never gets here!\n");
++	  exit(0);				/* just in case */
++	  
++	} 
++  else 
++	{
++	  XCloseDisplay(display);
++	}
++  
++  /* we have to init the toolkit *before* we check the command-line so
++     we can use X's parsing routines, since -geom options, etc. may be
++     specified, in which case, the motd-filename is *not* the 2nd
++     argument*/
++  topLevel = XtVaAppInitialize(&app_con, "XMotd", options, 
++							   XtNumber(options),
++							   &argc, argv, fallback_resources, 
++							   NULL);
++
++  XtGetApplicationResources(topLevel, (caddr_t) &app_res,
++							resources, XtNumber(resources),
++							(ArgList) NULL, (Cardinal) 0);
++
++  if(argc<2)
++	{
++	  fprintf(stderr,"xmotd: ERROR, missing file\n");
++	  printUsage(argv[0]);	/* and exit */
++	}
++  
++  if(app_res.paranoid && !app_res.warnfile)
++	{
++	  fprintf(stderr,"xmotd: ERROR, specified \"-paranoid\" without \"-warnfile\"\n");
++	  printUsage(argv[0]);	/* and exit */
++	}
++
++  strcpy(timeStamp, getTimeStampName());
++
++  gargc=argc;
++  gargv=argv;
++  
++  /* first figure out how many of the files supplied on the
++     command-line we will be actually displaying; i.e. we only show
++     the new ones (unless -always has been specified, in which case we
++     show all of them)*/
++  numsg=numFilesToDisplay(argc, argv);
++
++  if(!app_res.periodic && !numsg)
++	{
++	  /* if none of the messages need to be displayed and -wakeup not
++	  specified */
++
++	  XtDestroyApplicationContext(app_con);		
++	  exit(0);
++	}  
++
++  if(app_res.periodic)			/*-wakeup or -timeout specified*/
++	{
++
++	  /*ensure no other copies of xmotd are running*/
++	  if(atomExists(app_res.atomname)){
++		XtDestroyApplicationContext(app_con);		
++		exit(0);
++	  }
++
++	  if(fork()) exit(0);		/*we have to daemonize ourselves*/
++	  alreadyForked=1;			/* make a note of it */
++
++	  if(!numsg)
++		{
++		  /* if no messages to be displayed, we sleep */
++		  numsg=runSilentRunDeep(getAlarmTime(app_res.periodic));
++		}
++
++	}
++
++  createWidgets(numsg);
++  nextMessage((Widget)NULL, (caddr_t)NULL, (caddr_t)NULL);  
++
++  XtAddEventHandler(topLevel, (EventMask)0, True,
++					(XtEventHandler)_XEditResCheckMessages, 0);
++
++  XtRealizeWidget(topLevel);  
++  XtAppMainLoop(app_con);
++
++  return 0;
++}
+Index: xmotd-1.17.3b/textmode.c
+===================================================================
+--- xmotd-1.17.3b.orig/textmode.c	2018-02-13 10:44:27.104309051 +0100
++++ xmotd-1.17.3b/textmode.c	2018-02-13 10:44:27.096309028 +0100
+@@ -40,6 +40,9 @@
+ #include <fcntl.h>
+ 
+ #include "maindefs.h"
++#include "prototypes.h"
++
++extern time_t motdChanged();
+ 
+ void
+ runInTextMode(argc, argv)
+@@ -50,8 +53,6 @@
+   register int i, displayed=0;
+   float sleepPeriod=0.0;
+   
+-  static int onceAlready;
+-  
+   static char buf[256], stampfile[256];
+   memset(buf, 0, 256);
+   memset(stampfile, 0, 256);
+Index: xmotd-1.17.3b/xlogo.bm
+===================================================================
+--- xmotd-1.17.3b.orig/xlogo.bm	2018-02-13 10:44:27.104309051 +0100
++++ xmotd-1.17.3b/xlogo.bm	2018-02-13 12:06:52.182920103 +0100
+@@ -1,5 +1,6 @@
+ #define xlogo_width 100
+ #define xlogo_height 100
++#ifndef HAVE_XPM
+ static char xlogo_bits[] = {
+  0xff,0xff,0xff,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xf8,0xff,0xfe,0xff,
+  0xff,0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xf8,0xff,0xfc,0xff,0xff,0x07,
+@@ -88,3 +89,4 @@
+  0xf1,0xf8,0x0f,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xfe,0xff,0xff,0xf3,0xfc,
+  0x07,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xfc,0xff,0xff,0xf7,0xfe,0x03,0x00,
+  0x00,0x00,0x00,0x00,0x00,0x00,0xf8,0xff,0xff,0xff};
++#endif
+Index: xmotd-1.17.3b/xmotd.c
+===================================================================
+--- xmotd-1.17.3b.orig/xmotd.c	2018-02-13 10:44:27.104309051 +0100
++++ xmotd-1.17.3b/xmotd.c	2018-02-13 11:06:49.756282943 +0100
+@@ -70,6 +70,7 @@
+ 
+ #include "maindefs.h"
+ #include "main.h"
++#include "prototypes.h"
+ 
+ extern time_t motdChanged();
+ extern messageptr freeMessage();
+@@ -85,6 +86,70 @@
+ char *txtbuf;					/* file is loaded into this malloc'd pointer */
+ 
+ 
++void
++displayMessage(char *filename)
++{
++  FILE *fp;
++  struct stat motdstat;
++  extern Widget text;
++
++/*   fprintf(stderr,"displayMessage()\n"); */
++
++#ifdef MOTIF
++  XmString xmstr;
++#endif
++
++/*  memset((char *)(&motdstat), 0, sizeof(struct stat));*/
++  
++  if((fp=fopen(filename,"r"))==NULL)  /* Read it in...*/
++	{
++	  perror(filename);
++	  return;				/* no file by this name*/
++	}
++
++  stat(filename,&motdstat);
++  if(txtbuf) free(txtbuf);
++  
++  txtbuf=(char *)calloc(1, (motdstat.st_size+1)*sizeof(char));
++  
++  if(!txtbuf)
++	{
++	  extern XtAppContext app_con;
++
++	  perror("xmotd");
++	  XtDestroyApplicationContext(app_con);
++	  exit(2);
++	}
++
++  fread(txtbuf,(int)motdstat.st_size,1,fp);
++
++  fclose(fp);
++
++#ifdef MOTIF
++
++#ifdef HAVE_HTML
++
++   HTMLSetText(text,txtbuf,NULL,NULL,0,NULL,NULL);
++
++#else
++  XtVaSetValues(text, XmNvalue, txtbuf, NULL);
++#endif
++
++#else
++
++#ifdef HAVE_HTML
++
++   HTMLSetText(text,txtbuf,NULL,NULL,0,NULL,NULL);
++
++#else
++  XtVaSetValues(text, XtNstring, txtbuf, NULL);
++#endif
++
++#endif
++  
++}/* displayMessage*/
++
++
+ void 
+ /*ARGSUSED*/
+ nextMessage(Widget w, caddr_t call_data, caddr_t client_data)
+@@ -170,8 +235,6 @@
+ void 
+ revisitMessagesAndDisplay(int numsg)
+ {
+-  extern int gargc;
+-  extern char **gargv;
+   extern Widget topLevel, quit;
+   extern void Quit(Widget w, caddr_t call_data, caddr_t client_data);
+   
+@@ -203,70 +266,3 @@
+   XFlush(XtDisplay(topLevel));
+   
+ }
+-
+-
+-int
+-displayMessage(char *filename)
+-{
+-  FILE *fp;
+-  struct stat motdstat;
+-  extern Widget text;
+-
+-/*   fprintf(stderr,"displayMessage()\n"); */
+-
+-#ifdef MOTIF
+-  XmString xmstr;
+-#endif
+-
+-/*  memset((char *)(&motdstat), 0, sizeof(struct stat));*/
+-  
+-  if((fp=fopen(filename,"r"))==NULL)  /* Read it in...*/
+-	{
+-	  perror(filename);
+-	  return(0);				/* no file by this name*/
+-	}
+-
+-  stat(filename,&motdstat);
+-  if(txtbuf) free(txtbuf);
+-  
+-  txtbuf=(char *)calloc(1, (motdstat.st_size+1)*sizeof(char));
+-  
+-  if(!txtbuf)
+-	{
+-	  extern XtAppContext app_con;
+-
+-	  perror("xmotd");
+-	  XtDestroyApplicationContext(app_con);
+-	  exit(2);
+-	}
+-
+-  fread(txtbuf,(int)motdstat.st_size,1,fp);
+-
+-  fclose(fp);
+-
+-#ifdef MOTIF
+-
+-#ifdef HAVE_HTML
+-
+-   HTMLSetText(text,txtbuf,NULL,NULL,0,NULL,NULL);
+-
+-#else
+-  XtVaSetValues(text, XmNvalue, txtbuf, NULL);
+-#endif
+-
+-#else
+-
+-#ifdef HAVE_HTML
+-
+-   HTMLSetText(text,txtbuf,NULL,NULL,0,NULL,NULL);
+-
+-#else
+-  XtVaSetValues(text, XtNstring, txtbuf, NULL);
+-#endif
+-
+-#endif
+-
+-  return(1);
+-  
+-}/* displayMessage*/
+-
+Index: xmotd-1.17.3b/Imakefile
+===================================================================
+--- xmotd-1.17.3b.orig/Imakefile	2018-02-13 10:44:27.104309051 +0100
++++ xmotd-1.17.3b/Imakefile	2018-02-13 10:44:27.096309028 +0100
+@@ -60,7 +60,7 @@
+ 
+              SRCS = main.c xmotd.c changed.c textmode.c usage.c browser.c logo.c atom.c
+              OBJS = main.o xmotd.o changed.o textmode.o usage.o browser.o logo.o atom.o
+-            INCLS = maindefs.h appdefs.h main.h
++            INCLS = maindefs.h appdefs.h main.h prototypes.h
+ 
+       CDEBUGFLAGS = -g
+         MANSUFFIX = 8
+Index: xmotd-1.17.3b/Makefile
+===================================================================
+--- xmotd-1.17.3b.orig/Makefile	2018-02-13 10:44:27.104309051 +0100
++++ xmotd-1.17.3b/Makefile	2018-02-13 10:44:27.096309028 +0100
+@@ -497,7 +497,7 @@
+ 
+              SRCS = main.c xmotd.c changed.c textmode.c usage.c browser.c logo.c atom.c
+              OBJS = main.o xmotd.o changed.o textmode.o usage.o browser.o logo.o atom.o
+-            INCLS = maindefs.h appdefs.h main.h
++            INCLS = maindefs.h appdefs.h main.h prototypes.h
+ 
+       CDEBUGFLAGS = -g
+         MANSUFFIX = 8
+Index: xmotd-1.17.3b/prototypes.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ xmotd-1.17.3b/prototypes.h	2018-02-13 10:46:01.608588566 +0100
+@@ -0,0 +1,5 @@
++#ifndef _XMOTD_PROTOTYPES_H
++#define _XMOTD_PROTOTYPES_H
++void updateTimeStamp(char *motdfile);
++char * getTimeStampName(void);
++#endif

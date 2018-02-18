@@ -6,3 +6,4 @@ bugfix/hppa-build.diff -p1
 debian/enable-xpm.diff -p1
 debian/html-support-gone.diff -p1
 debian/unqualify-xmotd-in-manpage.diff -p1
+bugfix/fix-warnings-hardening-build.patch
