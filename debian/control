@@ -10,7 +10,7 @@ Build-Depends: debhelper (>= 11),
                libxpm-dev,
                libxt-dev,
                xutils-dev
-Homepage: http://www.ee.ryerson.ca/~elf/xmotd/
+Homepage: https://www.ee.ryerson.ca/~elf/xmotd/
 Vcs-Git: https://github.com/hlef/xmotd
 Vcs-Browser: https://github.com/hlef/xmotd
 
