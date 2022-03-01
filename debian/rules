@@ -7,7 +7,7 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 /usr/share/topgit/tg2quilt.mk:
 
 %:
-	dh $@ --with autoreconf
+	dh $@
 
 override_dh_autoreconf:
 	dh_autoreconf xmkmf -- -a
